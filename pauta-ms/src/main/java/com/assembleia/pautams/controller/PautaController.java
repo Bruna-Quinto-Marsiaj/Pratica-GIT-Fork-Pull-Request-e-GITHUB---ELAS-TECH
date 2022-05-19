@@ -49,7 +49,7 @@ public class PautaController {
         }
     }
 
-    private String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) throws VotacaoDuplicadaException {
+    private String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) {
         boolean jaVotou = false;
         for (Map.Entry<String, Voto> pair : pauta.getVotacao().entrySet()) {
             if (Objects.equals(associadoCadastrado.getId(), pair.getKey())) {
