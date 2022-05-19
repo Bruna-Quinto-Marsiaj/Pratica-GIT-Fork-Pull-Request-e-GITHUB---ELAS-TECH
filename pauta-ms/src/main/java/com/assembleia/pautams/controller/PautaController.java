@@ -13,6 +13,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/pauta")
@@ -35,20 +37,31 @@ public class PautaController {
     }
 
     @RequestMapping(path = "/votar", method = RequestMethod.POST)
-    public ResponseEntity<Associado> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) throws PautaNotFoundException {
+    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) throws PautaNotFoundException, VotacaoDuplicadaException {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
         if (pauta != null) {
-            //TODO: Associado não pode votar 2x e deve poder votar pela API
             Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
-            associadoCadastrado.setVoto(Voto.valueOf(voto.toUpperCase()));
-            service.adicionarVotoNaPauta(pauta, associadoCadastrado);
-
-            return ResponseEntity.ok(associadoCadastrado);
+            return ResponseEntity.ok(controleDeVoto(associadoCadastrado, pauta, voto));
         } else {
             throw new PautaNotFoundException();
         }
+    }
+
+    private String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) throws VotacaoDuplicadaException {
+        boolean jaVotou = false;
+        for (Map.Entry<String, Voto> pair : pauta.getVotacao().entrySet()) {
+            if (Objects.equals(associadoCadastrado.getId(), pair.getKey())) {
+                jaVotou = true;
+                return "Associado já votou!";
+            }
+        }
+        if (!jaVotou) {
+            associadoCadastrado.setVoto(Voto.valueOf(voto.toUpperCase()));
+            service.adicionarVotoNaPauta(pauta, associadoCadastrado);
+        }
+        return "Voto cadastrado com sucesso";
     }
 
     @RequestMapping(method = RequestMethod.GET)
