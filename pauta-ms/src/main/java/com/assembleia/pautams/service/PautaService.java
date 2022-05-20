@@ -6,6 +6,7 @@ import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
 import com.assembleia.pautams.feign.AssociadoFeignClient;
 import com.assembleia.pautams.repository.PautaRepository;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,8 @@ public class PautaService {
     private PautaRepository repository;
     @Autowired
     private AssociadoFeignClient associadoFeignClient;
+    @Autowired
+    private AmqpTemplate resultadoVotacaoSender;
 
     public Pauta cadastrar(Pauta pauta) {
         return repository.save(pauta);
@@ -35,6 +38,8 @@ public class PautaService {
 
         long votosSim = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.SIM)).count();
         long votosNao = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.NAO)).count();
+
+        resultadoVotacaoSender.convertAndSend("teste-exchange", "routing-key-teste", "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
 
         return "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao;
     }

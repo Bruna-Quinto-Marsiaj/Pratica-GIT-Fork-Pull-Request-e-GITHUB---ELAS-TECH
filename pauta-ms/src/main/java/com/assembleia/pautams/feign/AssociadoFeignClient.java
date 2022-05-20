@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Component
-@FeignClient(name = "associado-ms", url = "http://localhost:8001", path = "/associado")
+@FeignClient(name = "associado-ms", path = "/associado")
 public interface AssociadoFeignClient {
 
     @GetMapping

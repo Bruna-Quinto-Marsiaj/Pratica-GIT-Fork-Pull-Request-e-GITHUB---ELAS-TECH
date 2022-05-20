@@ -27,7 +27,11 @@ ext {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
-	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp:2.6.7'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.10.RELEASE'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
+	implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
+
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.6.RELEASE'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:3.1.2'
