@@ -6,6 +6,9 @@ spring:
     port: 5672
     username: guest
     password: guest
+  data:
+    mongodb:
+      uri: mongodb+srv://fabioqmarsiaj:9Q3ZrRPxKo3XJm5a@controledevotosdb.mke9i.mongodb.net/?retryWrites=true&w=majority
 
 queue:
   name: teste
@@ -23,4 +26,3 @@ associado-ms:
     listOfServers: localhost:8001,localhost:8002
     connectTimeout: 10000
     readTimeout: 20000
-
