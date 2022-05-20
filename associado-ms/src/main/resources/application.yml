@@ -1,18 +1,25 @@
-spring:
-  application:
-    name: associado-ms
-  data:
-    mongodb:
-      uri: mongodb+srv://fabioqmarsiaj:9Q3ZrRPxKo3XJm5a@controledevotosdb.mke9i.mongodb.net/?retryWrites=true&w=majority
-
-server:
-  port: 8001
-  additionalPorts: 8002
-
 eureka:
   client:
-  service-url:
-  defaultZone: http://localhost:8761/eureka
+    serviceUrl:
+      defaultZone: ${EUREKA_URL:http://user:password@localhost:5000}/eureka/
+security:
+  user:
+    password: ${eureka.password}
+
+---
+
+spring:
+  application:
+    name: ${DOMAIN_NAME}
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+
+eureka:
+  instance:
+    hostname: ${DOMAIN_NAME}
+    nonSecurePort: 80
+  password: ${USER_PASSWORD:password}
 
 
 

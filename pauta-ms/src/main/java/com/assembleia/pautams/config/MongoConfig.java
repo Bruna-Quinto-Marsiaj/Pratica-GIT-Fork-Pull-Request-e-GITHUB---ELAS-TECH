@@ -5,7 +5,10 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
@@ -15,10 +18,16 @@ import java.util.Collections;
 import java.util.List;
 
 @Configuration
-@EnableMongoRepositories("com.assembleia.associadoms.repository")
+@EnableMongoRepositories("com.assembleia.pautams.repository")
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
     private final List<Converter<?, ?>> converters = new ArrayList<Converter<?, ?>>();
+
+    @Autowired
+    private Environment env;
+
+    @Value("${spring.data.mongodb.uri}")
+    private String MONGODB_URI;
 
     @Override
     protected String getDatabaseName() {
@@ -27,7 +36,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        final ConnectionString connectionString = new ConnectionString("mongodb+srv://fabioqmarsiaj:9Q3ZrRPxKo3XJm5a@controledevotosdb.mke9i.mongodb.net/?retryWrites=true&w=majority");
+        final ConnectionString connectionString = new ConnectionString(MONGODB_URI);
         final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .build();
@@ -36,6 +45,6 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public Collection<String> getMappingBasePackages() {
-        return Collections.singleton("com.associadoms.repository");
+        return Collections.singleton("com.assembleia.pautams.repository");
     }
 }
