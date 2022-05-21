@@ -22,6 +22,19 @@ security:
 spring:
   application:
     name: ${DOMAIN_NAME}
+  rabbitmq:
+    host: shrimp.rmq.cloudamqp.com
+    uri: amqps://${RABBIT_USER}:${RABBIT_PASSWORD}@shrimp.rmq.cloudamqp.com/${RABBIT_USER}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASSWORD}
+    queue: SISTEMA_DE_VOTOS_QUEUE
+    exchange: SISTEMA_DE_VOTOS_EXCHANGE
+    routingKey: SISTEMA_DE_VOTOS_ROUTING_KEY
+    ssl:
+      enabled: true
   data:
     mongodb:
       uri: ${MONGODB_URI}

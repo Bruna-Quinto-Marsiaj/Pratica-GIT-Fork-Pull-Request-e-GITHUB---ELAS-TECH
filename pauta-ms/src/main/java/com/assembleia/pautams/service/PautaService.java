@@ -6,19 +6,30 @@ import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
 import com.assembleia.pautams.feign.AssociadoFeignClient;
 import com.assembleia.pautams.repository.PautaRepository;
-import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PautaService {
 
     @Autowired
-    private PautaRepository repository;
+    private final PautaRepository repository;
     @Autowired
-    private AssociadoFeignClient associadoFeignClient;
+    private final AssociadoFeignClient associadoFeignClient;
     @Autowired
-    private AmqpTemplate resultadoVotacaoSender;
+    private final RabbitTemplate resultadoVotacaoSender;
+    @Value("${spring.rabbitmq.exchange}")
+    private String exchange;
+    @Value("${spring.rabbitmq.routingKey}")
+    private String routingKey;
+
+    public PautaService(PautaRepository repository, AssociadoFeignClient associadoFeignClient, RabbitTemplate resultadoVotacaoSender) {
+        this.repository = repository;
+        this.associadoFeignClient = associadoFeignClient;
+        this.resultadoVotacaoSender = resultadoVotacaoSender;
+    }
 
     public Pauta cadastrar(Pauta pauta) {
         return repository.save(pauta);
@@ -39,7 +50,7 @@ public class PautaService {
         long votosSim = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.SIM)).count();
         long votosNao = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.NAO)).count();
 
-        resultadoVotacaoSender.convertAndSend("teste-exchange", "routing-key-teste", "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
+        resultadoVotacaoSender.convertAndSend(exchange, routingKey, "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
 
         return "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao;
     }
