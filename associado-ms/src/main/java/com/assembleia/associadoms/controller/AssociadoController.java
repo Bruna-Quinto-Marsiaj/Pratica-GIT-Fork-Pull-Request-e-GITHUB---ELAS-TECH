@@ -39,11 +39,7 @@ public class AssociadoController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<String> findByCpf(@RequestParam String cpf) {
-        if (!cpf.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.OK).body(service.findByCpf(cpf).toString());
-        } else {
-            return ResponseEntity.badRequest().body("CPF não pode ser nulo ou vazio");
-        }
+    public ResponseEntity<Associado> findByCpf(@RequestParam String cpf) {
+        return ResponseEntity.ok().body(service.findByCpf(cpf));
     }
 }

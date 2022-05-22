@@ -4,7 +4,6 @@ import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
-import com.assembleia.pautams.exception.PautaNotFoundException;
 import com.assembleia.pautams.feign.AssociadoFeignClient;
 import com.assembleia.pautams.repository.PautaRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class PautaService {
@@ -43,11 +41,8 @@ public class PautaService {
         return repository.save(pauta);
     }
 
-    public Pauta findByNome(String nome) throws PautaNotFoundException {
-        Optional<Pauta> obj = Optional.ofNullable(repository.findByNome(nome));
-
-        return obj.orElseThrow(() -> new PautaNotFoundException(
-                "Pauta não encontrada! Nome: " + nome));
+    public Pauta findByNome(String nome) {
+        return repository.findByNome(nome);
     }
 
     public Associado findByAssociadoCpf(String cpf) {

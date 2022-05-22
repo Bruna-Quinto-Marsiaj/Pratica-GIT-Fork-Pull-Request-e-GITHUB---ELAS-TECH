@@ -39,7 +39,7 @@ public class PautaController {
     }
 
     @RequestMapping(path = "/votar", method = RequestMethod.POST)
-    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) throws PautaNotFoundException {
+    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
