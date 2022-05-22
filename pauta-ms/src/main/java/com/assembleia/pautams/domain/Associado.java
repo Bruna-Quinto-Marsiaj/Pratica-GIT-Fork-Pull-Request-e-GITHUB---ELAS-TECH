@@ -1,12 +1,14 @@
 package com.assembleia.pautams.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
-@AllArgsConstructor
+@Setter
+@Getter
 public class Associado {
     private final String id;
-    private final String cpf;
-    private final Voto voto;
+    private String cpf;
+    private Voto voto;
 }

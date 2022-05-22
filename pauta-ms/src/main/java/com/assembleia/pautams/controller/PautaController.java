@@ -4,16 +4,14 @@ import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
-import com.assembleia.pautams.exception.PautaNotFoundException;
 import com.assembleia.pautams.service.PautaService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -31,20 +29,21 @@ public class PautaController {
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Void> cadastrar(@RequestParam String nome) {
-        PautaDTO pautaDTO = new PautaDTO(null, nome.toUpperCase(), new HashMap<>());
+    public ResponseEntity<String> cadastrar(@RequestParam String nome) {
+        if (!nome.isEmpty()) {
+            PautaDTO pautaDTO = new PautaDTO(null, nome.toUpperCase(), new HashMap<>());
 
-        Pauta pauta = service.fromDTO(pautaDTO);
-        pauta = service.cadastrar(pauta);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(pauta.getId()).toUri();
+            Pauta pauta = service.fromDTO(pautaDTO);
+            pauta = service.cadastrar(pauta);
 
-        return ResponseEntity.created(uri).build();
+            return ResponseEntity.status(HttpStatus.OK).body("Pauta cadastrada com sucesso, ID: " + pauta.getId());
+        } else {
+            return ResponseEntity.badRequest().body("Nome não pode ser vazio");
+        }
     }
 
     @RequestMapping(path = "/votar", method = RequestMethod.POST)
-    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) throws PautaNotFoundException {
+    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
@@ -53,22 +52,22 @@ public class PautaController {
                 Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
                 return ResponseEntity.ok(controleDeVoto(associadoCadastrado, pauta, voto));
             } else {
-                throw new PautaNotFoundException();
+                return ResponseEntity.notFound().build();
             }
         } else {
-            return ResponseEntity.ok("Tempo excedido para votações na Pauta: " + pauta.getNome());
+            return ResponseEntity.badRequest().body("Tempo excedido para votações na Pauta: " + pauta.getNome());
         }
     }
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> contagemDeVotos(@RequestParam String nome) throws PautaNotFoundException {
+    public ResponseEntity<String> contagemDeVotos(@RequestParam String nome) {
         Pauta pauta = service.findByNome(nome.toUpperCase());
 
         if (pauta != null) {
             return ResponseEntity.ok(service.contagemDeVotos(pauta));
         } else {
-            throw new PautaNotFoundException();
+            return ResponseEntity.notFound().build();
         }
     }
 

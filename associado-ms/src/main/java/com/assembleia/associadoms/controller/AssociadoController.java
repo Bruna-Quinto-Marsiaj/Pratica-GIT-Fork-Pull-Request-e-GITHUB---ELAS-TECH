@@ -6,6 +6,7 @@ import com.assembleia.associadoms.service.AssociadoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,19 +23,23 @@ public class AssociadoController {
     private final AssociadoService service;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<Associado> cadastrar(@RequestParam String cpf) throws AssociadoCadastradoException {
+    public ResponseEntity<String> cadastrar(@RequestParam String cpf) throws AssociadoCadastradoException {
         Associado associado = service.findByCpf(cpf);
 
         if (associado == null) {
             Associado novoAssociado = new Associado(null, cpf, null);
-            return ResponseEntity.ok(service.cadastrar(novoAssociado));
+            return ResponseEntity.status(HttpStatus.OK).body("Associado criado com sucesso, ID: " + novoAssociado.getId());
         } else {
-            throw new AssociadoCadastradoException();
+            return ResponseEntity.badRequest().body("Associado não pode ser nulo");
         }
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<Associado> findByCpf(@RequestParam String cpf) {
-        return ResponseEntity.ok().body(service.findByCpf(cpf));
+    public ResponseEntity<String> findByCpf(@RequestParam String cpf) {
+        if (!cpf.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body(service.findByCpf(cpf).toString());
+        } else {
+            return ResponseEntity.badRequest().body("CPF não pode ser nulo ou vazio");
+        }
     }
 }
