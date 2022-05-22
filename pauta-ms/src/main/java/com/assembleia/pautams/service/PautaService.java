@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class PautaService {
 
@@ -19,16 +21,16 @@ public class PautaService {
     @Autowired
     private final AssociadoFeignClient associadoFeignClient;
     @Autowired
-    private final RabbitTemplate resultadoVotacaoSender;
+    private final RabbitTemplate sender;
     @Value("${spring.rabbitmq.exchange}")
     private String exchange;
     @Value("${spring.rabbitmq.routingKey}")
     private String routingKey;
 
-    public PautaService(PautaRepository repository, AssociadoFeignClient associadoFeignClient, RabbitTemplate resultadoVotacaoSender) {
+    public PautaService(PautaRepository repository, AssociadoFeignClient associadoFeignClient, RabbitTemplate sender) {
         this.repository = repository;
         this.associadoFeignClient = associadoFeignClient;
-        this.resultadoVotacaoSender = resultadoVotacaoSender;
+        this.sender = sender;
     }
 
     public Pauta cadastrar(Pauta pauta) {
@@ -45,21 +47,20 @@ public class PautaService {
         repository.save(pauta);
     }
 
-    public String contagemDeVotos(Pauta pauta) {
+    public Associado findByAssociadoCpf(String cpf) {
+        return associadoFeignClient.findByCpf(cpf).getBody();
+    }
 
+    public String contagemDeVotos(Pauta pauta) {
         long votosSim = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.SIM)).count();
         long votosNao = pauta.getVotacao().values().stream().filter(voto -> voto.equals(Voto.NAO)).count();
 
-        resultadoVotacaoSender.convertAndSend(exchange, routingKey, "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
+        sender.convertAndSend(exchange, routingKey, "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
 
-        return "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao;
+        return String.format("VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
     }
 
     public Pauta fromDTO(PautaDTO pautaDTO) {
-        return new Pauta(null, pautaDTO.getNome(), pautaDTO.getVotacao());
-    }
-
-    public Associado findByAssociadoCpf(String cpf) {
-        return associadoFeignClient.findByCpf(cpf).getBody();
+        return new Pauta(null, pautaDTO.getNome(), pautaDTO.getVotacao(), LocalDateTime.now());
     }
 }
