@@ -6,6 +6,18 @@ security:
   user:
     password: ${eureka.password}
 
+app:
+  name: Associado MS
+  api:
+    title: Associado microservice
+    version: 1.0.0
+    description: Associado microservice
+    base-package: com.assembleia.associadoms.controller
+    contact-name: Fabio Marsiaj
+    contact-email: fabiobackend@gmail.com
+    swagger:
+      enable: true
+
 ---
 
 spring:
@@ -14,6 +26,8 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI}
+  swagger:
+    enable: false
 
 eureka:
   instance:

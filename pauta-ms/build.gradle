@@ -31,6 +31,8 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon:2.2.10.RELEASE'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.8'
 	implementation 'org.springdoc:springdoc-openapi-core:1.1.49'
+	implementation 'io.springfox:springfox-swagger2:2.9.2'
+	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:2.2.6.RELEASE'

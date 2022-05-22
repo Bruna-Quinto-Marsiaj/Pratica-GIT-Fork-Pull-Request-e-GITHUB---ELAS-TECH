@@ -17,11 +17,25 @@ security:
   user:
     password: ${eureka.password}
 
+app:
+  name: Pauta MS
+  api:
+    title: Pauta microservice
+    version: 1.0.0
+    description: Pauta microservice
+    base-package: com.assembleia.pautams.controller
+    contact-name: Fabio Marsiaj
+    contact-email: fabiobackend@gmail.com
+    swagger:
+      enable: true
+
 ---
 
 spring:
   application:
     name: ${DOMAIN_NAME}
+  swagger:
+    enable: false
   rabbitmq:
     host: shrimp.rmq.cloudamqp.com
     uri: amqps://${RABBIT_USER}:${RABBIT_PASSWORD}@shrimp.rmq.cloudamqp.com/${RABBIT_USER}
