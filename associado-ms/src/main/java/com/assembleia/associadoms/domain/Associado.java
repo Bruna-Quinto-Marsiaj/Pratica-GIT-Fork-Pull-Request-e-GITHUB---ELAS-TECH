@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 public class Associado {
     @Id
-    private String id;
-    private String cpf;
-    private Voto voto;
+    private final String id;
+    private final String cpf;
+    private final Voto voto;
 }

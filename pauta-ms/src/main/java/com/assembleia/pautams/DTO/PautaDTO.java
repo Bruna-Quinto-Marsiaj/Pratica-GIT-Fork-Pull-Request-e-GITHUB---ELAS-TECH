@@ -10,8 +10,8 @@ import java.util.HashMap;
 @AllArgsConstructor
 public class PautaDTO {
 
-    private String id;
-    private String nome;
-    private HashMap<String, Voto> votacao;
+    private final String id;
+    private final String nome;
+    private final HashMap<String, Voto> votacao;
 
 }
