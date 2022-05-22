@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -64,6 +67,30 @@ public class PautaService {
         sender.convertAndSend(exchange, routingKey, "VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
 
         return String.format("VOTOS SIM: " + votosSim + " VOTOS NÃO: " + votosNao);
+    }
+
+    public String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) {
+        boolean jaVotou = false;
+        for (Map.Entry<String, Voto> pair : pauta.getVotacao().entrySet()) {
+            if (Objects.equals(associadoCadastrado.getId(), pair.getKey())) {
+                jaVotou = true;
+                return "Associado já votou!";
+            }
+        }
+        if (!jaVotou) {
+            associadoCadastrado.setVoto(Voto.valueOf(voto.toUpperCase()));
+            adicionarVotoNaPauta(pauta, associadoCadastrado);
+        }
+        return "Voto cadastrado com sucesso";
+    }
+
+    public long tempoLimite(Pauta pauta) {
+        long epochPauta = 0L;
+        if (pauta != null) {
+            epochPauta = pauta.getTimeStart().atZone(ZoneId.systemDefault()).toEpochSecond();
+        }
+        long epochNow = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
+        return epochNow - epochPauta;
     }
 
     public Pauta fromDTO(PautaDTO pautaDTO) {

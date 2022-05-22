@@ -3,7 +3,6 @@ package com.assembleia.pautams.controller;
 import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
-import com.assembleia.pautams.domain.Voto;
 import com.assembleia.pautams.exception.PautaNotFoundException;
 import com.assembleia.pautams.service.PautaService;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/pauta")
@@ -48,10 +43,10 @@ public class PautaController {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
-        if (tempoLimite(pauta) < 90) {
+        if (service.tempoLimite(pauta) < 90) {
             if (pauta != null) {
                 Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
-                return ResponseEntity.ok(controleDeVoto(associadoCadastrado, pauta, voto));
+                return ResponseEntity.ok(service.controleDeVoto(associadoCadastrado, pauta, voto));
             } else {
                 return ResponseEntity.notFound().build();
             }
@@ -70,29 +65,5 @@ public class PautaController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    private long tempoLimite(Pauta pauta) {
-        long epochPauta = 0L;
-        if (pauta != null) {
-            epochPauta = pauta.getTimeStart().atZone(ZoneId.systemDefault()).toEpochSecond();
-        }
-        long epochNow = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
-        return epochNow - epochPauta;
-    }
-
-    private String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) {
-        boolean jaVotou = false;
-        for (Map.Entry<String, Voto> pair : pauta.getVotacao().entrySet()) {
-            if (Objects.equals(associadoCadastrado.getId(), pair.getKey())) {
-                jaVotou = true;
-                return "Associado já votou!";
-            }
-        }
-        if (!jaVotou) {
-            associadoCadastrado.setVoto(Voto.valueOf(voto.toUpperCase()));
-            service.adicionarVotoNaPauta(pauta, associadoCadastrado);
-        }
-        return "Voto cadastrado com sucesso";
     }
 }
