@@ -1,6 +1,7 @@
 package com.assembleia.associadoms.controller;
 
 import com.assembleia.associadoms.domain.Associado;
+import com.assembleia.associadoms.exception.AssociadoNotFoundException;
 import com.assembleia.associadoms.service.AssociadoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class AssociadoController {
     private final AssociadoService service;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<String> cadastrar(@RequestParam String cpf) {
+    public ResponseEntity<String> cadastrar(@RequestParam String cpf) throws AssociadoNotFoundException {
         Associado associado = service.findByCpf(cpf);
 
         if (!cpf.isEmpty()) {
@@ -40,7 +41,7 @@ public class AssociadoController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ResponseEntity<String> findByCpf(@RequestParam String cpf) {
+    public ResponseEntity<String> findByCpf(@RequestParam String cpf) throws AssociadoNotFoundException {
         if (!cpf.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(service.findByCpf(cpf).toString());
         } else {

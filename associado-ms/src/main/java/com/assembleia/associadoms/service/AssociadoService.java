@@ -20,16 +20,10 @@ public class AssociadoService {
         return repository.insert(associado);
     }
 
-    public Associado find(String id) throws AssociadoNotFoundException {
-        Optional<Associado> associado = repository.findById(id);
-        if (associado.isPresent()) {
-            return associado.get();
-        } else {
-            throw new AssociadoNotFoundException();
-        }
-    }
-
-    public Associado findByCpf(String cpf) {
-        return repository.findByCpf(cpf);
+    public Associado findByCpf(String cpf) throws AssociadoNotFoundException {
+        Optional<Associado> associado = Optional.ofNullable(repository.findByCpf(cpf));
+        return associado.orElseThrow(() -> new AssociadoNotFoundException(
+                "Associado não encontrado! CPF: " + cpf
+        ));
     }
 }

@@ -1,7 +1,7 @@
 package com.assembleia.associadoms.exception;
 
 public class AssociadoNotFoundException extends Throwable{
-    public AssociadoNotFoundException() {
+    public AssociadoNotFoundException(String s) {
         super("Associado não encontrado.");
     }
 }
