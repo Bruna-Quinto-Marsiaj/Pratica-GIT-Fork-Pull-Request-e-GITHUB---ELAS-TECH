@@ -4,6 +4,7 @@ import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
+import com.assembleia.pautams.exception.PautaNotFoundException;
 import com.assembleia.pautams.feign.AssociadoFeignClient;
 import com.assembleia.pautams.repository.PautaRepository;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PautaService {
@@ -22,6 +24,7 @@ public class PautaService {
     private final AssociadoFeignClient associadoFeignClient;
     @Autowired
     private final RabbitTemplate sender;
+
     @Value("${spring.rabbitmq.exchange}")
     private String exchange;
     @Value("${spring.rabbitmq.routingKey}")
@@ -37,18 +40,21 @@ public class PautaService {
         return repository.save(pauta);
     }
 
-    public Pauta findByNome(String nome) {
-        return repository.findByNome(nome);
+    public Pauta findByNome(String nome) throws PautaNotFoundException {
+        Optional<Pauta> obj = Optional.ofNullable(repository.findByNome(nome));
+
+        return obj.orElseThrow(() -> new PautaNotFoundException(
+                "Pauta não encontrada! Nome: " + nome));
+    }
+
+    public Associado findByAssociadoCpf(String cpf) {
+        return associadoFeignClient.findByCpf(cpf).getBody();
     }
 
     public void adicionarVotoNaPauta(Pauta pauta, Associado associado) {
         associadoFeignClient.findByCpf(associado.getCpf());
         pauta.adicionarVoto(associado.getId(), associado.getVoto());
         repository.save(pauta);
-    }
-
-    public Associado findByAssociadoCpf(String cpf) {
-        return associadoFeignClient.findByCpf(cpf).getBody();
     }
 
     public String contagemDeVotos(Pauta pauta) {

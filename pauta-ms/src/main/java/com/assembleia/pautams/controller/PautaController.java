@@ -4,6 +4,7 @@ import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
 import com.assembleia.pautams.domain.Voto;
+import com.assembleia.pautams.exception.PautaNotFoundException;
 import com.assembleia.pautams.service.PautaService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,16 +35,16 @@ public class PautaController {
             PautaDTO pautaDTO = new PautaDTO(null, nome.toUpperCase(), new HashMap<>());
 
             Pauta pauta = service.fromDTO(pautaDTO);
-            pauta = service.cadastrar(pauta);
+            service.cadastrar(pauta);
 
-            return ResponseEntity.status(HttpStatus.OK).body("Pauta cadastrada com sucesso, ID: " + pauta.getId());
+            return ResponseEntity.status(HttpStatus.OK).body("Pauta cadastrada com sucesso");
         } else {
             return ResponseEntity.badRequest().body("Nome não pode ser vazio");
         }
     }
 
     @RequestMapping(path = "/votar", method = RequestMethod.POST)
-    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) {
+    public ResponseEntity<String> votar(@RequestParam String cpf, @RequestParam String voto, @RequestParam String nomePauta) throws PautaNotFoundException {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
@@ -61,7 +62,7 @@ public class PautaController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<String> contagemDeVotos(@RequestParam String nome) {
+    public ResponseEntity<String> contagemDeVotos(@RequestParam String nome) throws PautaNotFoundException {
         Pauta pauta = service.findByNome(nome.toUpperCase());
 
         if (pauta != null) {
@@ -72,10 +73,12 @@ public class PautaController {
     }
 
     private long tempoLimite(Pauta pauta) {
-        long epochPauta = pauta.getTimeStart().atZone(ZoneId.systemDefault()).toEpochSecond();
+        long epochPauta = 0L;
+        if (pauta != null) {
+            epochPauta = pauta.getTimeStart().atZone(ZoneId.systemDefault()).toEpochSecond();
+        }
         long epochNow = LocalDateTime.now().atZone(ZoneId.systemDefault()).toEpochSecond();
-        long diference = epochNow - epochPauta;
-        return diference;
+        return epochNow - epochPauta;
     }
 
     private String controleDeVoto(Associado associadoCadastrado, Pauta pauta, String voto) {

@@ -1,7 +1,6 @@
 package com.assembleia.associadoms.controller;
 
 import com.assembleia.associadoms.domain.Associado;
-import com.assembleia.associadoms.exception.AssociadoCadastradoException;
 import com.assembleia.associadoms.service.AssociadoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +22,20 @@ public class AssociadoController {
     private final AssociadoService service;
 
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<String> cadastrar(@RequestParam String cpf) throws AssociadoCadastradoException {
+    public ResponseEntity<String> cadastrar(@RequestParam String cpf) {
         Associado associado = service.findByCpf(cpf);
 
-        if (associado == null) {
-            Associado novoAssociado = new Associado(null, cpf, null);
-            return ResponseEntity.status(HttpStatus.OK).body("Associado criado com sucesso, ID: " + novoAssociado.getId());
+        if (!cpf.isEmpty()) {
+            if (associado == null) {
+                Associado novoAssociado = new Associado(null, cpf, null);
+                service.cadastrar(novoAssociado);
+
+                return ResponseEntity.status(HttpStatus.OK).body("Associado criado com sucesso");
+            } else {
+                return ResponseEntity.badRequest().body("Associado já cadastrado");
+            }
         } else {
-            return ResponseEntity.badRequest().body("Associado não pode ser nulo");
+            return ResponseEntity.badRequest().body("CPF não pode ser vazio");
         }
     }
 
