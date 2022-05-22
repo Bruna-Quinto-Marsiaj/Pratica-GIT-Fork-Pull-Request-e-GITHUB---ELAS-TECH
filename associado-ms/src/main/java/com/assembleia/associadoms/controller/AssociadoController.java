@@ -24,9 +24,8 @@ public class AssociadoController {
 
     @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<String> cadastrar(@RequestParam String cpf) throws AssociadoNotFoundException {
-        Associado associado = service.findByCpf(cpf);
-
         if (!cpf.isEmpty()) {
+            Associado associado = service.findByCpf(cpf);
             if (associado == null) {
                 Associado novoAssociado = new Associado(null, cpf, null);
                 service.cadastrar(novoAssociado);
