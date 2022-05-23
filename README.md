@@ -30,7 +30,7 @@ Postando o resultado numa QUEUE no rabbitmq.
 
 Segue o diagrama:
 
-![image](resources/diagrama.jpeg)
+![image](resources/diagrama-att.JPG)
 
 ## Summary
 
