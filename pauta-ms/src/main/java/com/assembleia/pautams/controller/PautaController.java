@@ -52,12 +52,7 @@ public class PautaController {
 
         if (ableToVote.getStatus().equals(ABLE_TO_VOTE)) {
             if (service.tempoLimite(pauta) < 90) {
-                if (pauta != null) {
-                    Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
-                    return ResponseEntity.ok(service.controleDeVoto(associadoCadastrado, pauta, voto));
-                } else {
-                    return ResponseEntity.notFound().build();
-                }
+                return controleDeVoto(cpf, voto, pauta);
             } else {
                 return ResponseEntity.badRequest().body("Tempo excedido para votações na Pauta: " + pauta.getNome());
             }
@@ -73,6 +68,15 @@ public class PautaController {
 
         if (pauta != null) {
             return ResponseEntity.ok(service.contagemDeVotos(pauta));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    private ResponseEntity<String> controleDeVoto(String cpf, String voto, Pauta pauta) {
+        if (pauta != null) {
+            Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
+            return ResponseEntity.ok(service.controleDeVoto(associadoCadastrado, pauta, voto));
         } else {
             return ResponseEntity.notFound().build();
         }
