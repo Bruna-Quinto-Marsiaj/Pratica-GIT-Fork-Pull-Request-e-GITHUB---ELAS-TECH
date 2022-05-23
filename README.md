@@ -4,7 +4,7 @@
 Nesse projeto a intenção é criar uma simples aplicação de gerenciamento de votos dos associados.
 
 O funcionamento básico se da desta forma:
-Podemos criar uma Pauta e Associados; Uma Pauta tem um id, nome e um HashMap de String,Voto. Sendo string o id do associado.
+Podemos criar uma Pauta e vários Associados; Uma Pauta tem um id, nome e um HashMap de String,Voto. Sendo string o id do associado.
 
 Um _Associado_ tem:
 
@@ -22,6 +22,7 @@ Depois que um associado VOTA o HashMap é atualizado com seu voto e seu id.
 
 OBS: Na hora do voto a PAUTAMS consulta o CPF do associado no ASSOCIADOMS via FEIGN CLIENT. Visto que cada MS
 tem sua responsabilidade.
+Há também a consulta no UserInfo API no Herouk, para checar se o CPF pode votar.
 
 Lembrando que um associado não pode votar duas vezes, e nem consegue.
 
@@ -55,7 +56,7 @@ O projeto se encontra no github e hospedado live no Heroku, MongoDB para o banco
 **PAUTA-MS**: https://pauta-ms.herokuapp.com/swagger-ui.html
 **EUREKA-SERVER-MS**: https://eureka-server-ms.herokuapp.com/
 
-Abra o POSTMAN e siga como na imagem:
+Abra o POSTMAN e siga como na imagem para criar um Associado:
 ![image](resources/criar-associado.JPG)
 
 Agora, crie uma Pauta:
