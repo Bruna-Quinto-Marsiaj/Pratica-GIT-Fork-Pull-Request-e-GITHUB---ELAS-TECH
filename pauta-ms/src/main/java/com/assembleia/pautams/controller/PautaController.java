@@ -3,10 +3,11 @@ package com.assembleia.pautams.controller;
 import com.assembleia.pautams.DTO.PautaDTO;
 import com.assembleia.pautams.domain.Associado;
 import com.assembleia.pautams.domain.Pauta;
+import com.assembleia.pautams.domain.UserInfoDomain;
 import com.assembleia.pautams.exception.PautaNotFoundException;
+import com.assembleia.pautams.feign.UserInfoFeignClient;
 import com.assembleia.pautams.service.PautaService;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,15 @@ import java.util.HashMap;
 @RestController
 @RequestMapping(value = "/pauta")
 @AllArgsConstructor
-@Slf4j
 public class PautaController {
+
+    private final static String ABLE_TO_VOTE = "ABLE_TO_VOTE";
 
     @Autowired
     private final PautaService service;
+
+    @Autowired
+    private final UserInfoFeignClient userInfoFeignClient;
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
@@ -43,15 +48,21 @@ public class PautaController {
 
         Pauta pauta = service.findByNome(nomePauta.toUpperCase());
 
-        if (service.tempoLimite(pauta) < 90) {
-            if (pauta != null) {
-                Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
-                return ResponseEntity.ok(service.controleDeVoto(associadoCadastrado, pauta, voto));
+        UserInfoDomain ableToVote = userInfoFeignClient.isAbleToVote(cpf);
+
+        if (ableToVote.getStatus().equals(ABLE_TO_VOTE)) {
+            if (service.tempoLimite(pauta) < 90) {
+                if (pauta != null) {
+                    Associado associadoCadastrado = service.findByAssociadoCpf(cpf);
+                    return ResponseEntity.ok(service.controleDeVoto(associadoCadastrado, pauta, voto));
+                } else {
+                    return ResponseEntity.notFound().build();
+                }
             } else {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.badRequest().body("Tempo excedido para votações na Pauta: " + pauta.getNome());
             }
         } else {
-            return ResponseEntity.badRequest().body("Tempo excedido para votações na Pauta: " + pauta.getNome());
+            return ResponseEntity.badRequest().body("Associado não pode votar: " + ableToVote);
         }
     }
 
