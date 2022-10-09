@@ -1,3 +1,13 @@
+## Prática Aula 5 de GIT, Fork, Pull Request e GITHUB - ELAS TECH
+
+    O que estou achando do curso?
+
+    Maravilhoso! Ùma grande oportunidade. Estou adorando aprender certas coisas e pôr em prática outras.
+
+    ** By Bruna Quinto Marsiaj
+
+
+
 # Aplicação Sistema de Votos
 **By Fabio Marsiaj**
 
